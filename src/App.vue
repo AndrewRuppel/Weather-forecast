@@ -53,7 +53,8 @@
 </template>
 
 <script>
-const API_KEY = 'a0533a229c6b65b7b434a8632cab3f0a';
+const 	API_KEY	= 'a0533a229c6b65b7b434a8632cab3f0a',
+		API_URL	= 'http://api.openweathermap.org/data/2.5/weather';
 
 export default {
 	name: "app",
@@ -89,36 +90,38 @@ export default {
 		updateInfo: function() {
 
 			if (!navigator.geolocation) {
-				alert('Sorry, geoposition not working')
-				this.load			= false
-				this.popup.visible 	= true
+				alert('Sorry, geoposition not working');
+				this.load			= false;
+				this.popup.visible 	= true;
 			} else {
-				this.load = true
+				this.load = true;
 
 				navigator.geolocation.getCurrentPosition(position => {
-					this.coords.lat = position.coords.latitude
-					this.coords.lon = position.coords.longitude
+					this.coords.lat = position.coords.latitude;
+					this.coords.lon = position.coords.longitude;
 
 					this.$http
-					.get('http://api.openweathermap.org/data/2.5/weather?lat=' + this.coords.lat 
-						+ '&lon=' + this.coords.lon 
-						+ '&APPID=' + API_KEY 
-						+ '&lang=ru' 
-						+ '&units=metric'
-					)
-					.then(response => {
-						this.setData(response)
-						this.load = false
-					}, () => {
-						alert('Sorry, geoposition not working');
-						this.load = false;
-						this.popup.visible = true;
-					})
-
+						.get(API_URL, {
+							params: {
+								lat: this.coords.lat, 
+								lon: this.coords.lon, 
+								APPID: API_KEY,
+								lang: 'ru', 
+								units: 'metric'
+							}
+						})
+						.then(response => {
+							this.setData(response);
+							this.load = false;
+						}, () => {
+							alert('Sorry, geoposition not working');
+							this.load 			= false;
+							this.popup.visible 	= true;
+						})
 				}, () => {
 					alert('Sorry, geoposition not working')
-					this.load 			= false
-					this.popup.visible 	= true
+					this.load 			= false;
+					this.popup.visible 	= true;
 				});
 			}
 		},
@@ -126,73 +129,76 @@ export default {
 			this.popup.error = ''
 			this.load = true
 			this.$http
-				.get('http://api.openweathermap.org/data/2.5/weather?q=' + this.popup.search
-					+ '&APPID=' + API_KEY 
-					+ '&lang=ru' 
-					+ '&units=metric'
-				)
+				.get(API_URL, {
+					params: {
+						q: this.popup.search, 
+						APPID: API_KEY, 
+						lang: 'ru', 
+						units: 'metric'
+					}
+				})
 				.then(response => {
-					this.setData(response)
-					this.load = false;
-					this.popup.visible = false
+					this.setData(response);
+					this.load 			= false;
+					this.popup.visible 	= false;
 				}, () => {
-					this.load = false
-					this.popup.error = 'Не нашли такого города, попробуйте снова.'
+					this.load 			= false;
+					this.popup.error 	= 'Не нашли такого города, попробуйте снова.';
 				})
 		},
 		setBackground: function(id) {
 			
 			if ( (id >= 200 && id < 800) || (id > 800 && id <= 804)) {
-				this.background = 'rainy'
+				this.background = 'rainy';
 			} else  {
-				this.background = 'sunny'
+				this.background = 'sunny';
 			}
 		},
 		setData: function(response) {
-			this.coords.city 			= response.data.name
-			this.weather.temp 			= Math.trunc(response.data.main.temp)
-			this.weather.icon 			= 'http://openweathermap.org/img/w/' + response.data.weather[0].icon + '.png'
-			this.weather.description 	= response.data.weather[0].description
-			this.weather.wind.speed 	= response.data.wind.speed
-			this.weather.wind.deg 		= response.data.wind.deg
-			this.weather.pressure 		= Math.trunc(response.data.main.pressure * 0.750063755419211)
-			this.weather.humidity 		= response.data.main.humidity
-			this.weather.clouds			= response.data.clouds.all
+			this.coords.city			= response.data.name;
+			this.weather.temp			= Math.trunc(response.data.main.temp);
+			this.weather.icon			= 'http://openweathermap.org/img/w/' + response.data.weather[0].icon + '.png';
+			this.weather.description	= response.data.weather[0].description;
+			this.weather.wind.speed		= response.data.wind.speed;
+			this.weather.wind.deg		= response.data.wind.deg;
+			this.weather.pressure		= Math.trunc(response.data.main.pressure * 0.750063755419211);
+			this.weather.humidity		= response.data.main.humidity;
+			this.weather.clouds			= response.data.clouds.all;
 
 			if (response.data.weather[0].icon.slice(-1) === 'n') { // icon id contains time of day info
-				this.background = 'night'
+				this.background = 'night';
 			} else {
-				this.setBackground(response.data.weather[0].id)
+				this.setBackground(response.data.weather[0].id);
 			}
 		},
 		windDirection: function (deg) {
-			const array = [0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360]
-			deg = array.sort((x, y) => Math.abs(deg - x) - Math.abs(deg - y))[0]
+			const array	= [0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360];
+			deg 		= array.sort((x, y) => Math.abs(deg - x) - Math.abs(deg - y))[0];
 
 			switch(deg) {
-				case 0 		: return 'Северный'
-				case 22.5 	: return 'Северо-северо-восточный'
-				case 45 	: return 'Северо-восточный'
-				case 67.5 	: return 'Восточно-северо-восточный'
-				case 90 	: return 'Восточный'
-				case 112.5 	: return 'Восточно-юго-восточный'
-				case 135 	: return 'Юго-восточный'
-				case 157.5 	: return 'Юго-юго-восточный'
-				case 180 	: return 'Южный'
-				case 202.5 	: return 'Юго-юго-западный'
-				case 225 	: return 'Юго-западный'
-				case 247.5	: return 'Западно-юго-западный'
-				case 270 	: return 'Западный'
-				case 292.5 	: return 'Западно-северо-западный'
-				case 315 	: return 'Северо-западный'
-				case 337.5 	: return 'Северо-северо-западный'
-				case 360	: return 'Северный'
-				default		: return ''
+				case 0 		: return 'Северный';
+				case 22.5 	: return 'Северо-северо-восточный';
+				case 45 	: return 'Северо-восточный';
+				case 67.5 	: return 'Восточно-северо-восточный';
+				case 90 	: return 'Восточный';
+				case 112.5 	: return 'Восточно-юго-восточный';
+				case 135 	: return 'Юго-восточный';
+				case 157.5 	: return 'Юго-юго-восточный';
+				case 180 	: return 'Южный';
+				case 202.5 	: return 'Юго-юго-западный';
+				case 225 	: return 'Юго-западный';
+				case 247.5	: return 'Западно-юго-западный';
+				case 270 	: return 'Западный';
+				case 292.5 	: return 'Западно-северо-западный';
+				case 315 	: return 'Северо-западный';
+				case 337.5 	: return 'Северо-северо-западный';
+				case 360	: return 'Северный';
+				default		: return '';
 			}
 		}
 	},
 	mounted: function() {
-		this.updateInfo()
+		this.updateInfo();
 	}
 };
 </script>
