@@ -58,7 +58,7 @@ const 	API_KEY	= 'a0533a229c6b65b7b434a8632cab3f0a',
 
 export default {
 	name: "app",
-	data: function() {
+	data () {
 		return {
 			load: true,
 			popup: {
@@ -87,7 +87,7 @@ export default {
 		}
 	},
 	methods: {
-		updateInfo: function() {
+		updateInfo () {
 
 			if (!navigator.geolocation) {
 				alert('Sorry, geoposition not working');
@@ -125,7 +125,7 @@ export default {
 				});
 			}
 		},
-		citySearch: function() {
+		citySearch () {
 			this.popup.error = ''
 			this.load = true
 			this.$http
@@ -146,7 +146,7 @@ export default {
 					this.popup.error 	= 'Не нашли такого города, попробуйте снова.';
 				})
 		},
-		setBackground: function(id) {
+		setBackground (id) {
 			
 			if ( (id >= 200 && id < 800) || (id > 800 && id <= 804)) {
 				this.background = 'rainy';
@@ -154,7 +154,7 @@ export default {
 				this.background = 'sunny';
 			}
 		},
-		setData: function(response) {
+		setData (response) {
 			this.coords.city			= response.data.name;
 			this.weather.temp			= Math.trunc(response.data.main.temp);
 			this.weather.icon			= 'http://openweathermap.org/img/w/' + response.data.weather[0].icon + '.png';
@@ -171,7 +171,7 @@ export default {
 				this.setBackground(response.data.weather[0].id);
 			}
 		},
-		windDirection: function (deg) {
+		windDirection (deg) {
 			const array	= [0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360];
 			deg 		= array.sort((x, y) => Math.abs(deg - x) - Math.abs(deg - y))[0];
 
@@ -197,7 +197,7 @@ export default {
 			}
 		}
 	},
-	mounted: function() {
+	mounted() {
 		this.updateInfo();
 	}
 };
